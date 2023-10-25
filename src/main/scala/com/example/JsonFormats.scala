@@ -1,6 +1,6 @@
 package com.example
 
-import com.example.UserRegistry.ActionPerformed
+import com.example.UserRegistry.{ActionPerformed, CounterPerformed}
 import spray.json.RootJsonFormat
 
 //#json-formats
@@ -14,5 +14,6 @@ object JsonFormats  {
   implicit val usersJsonFormat: RootJsonFormat[Users] = jsonFormat1(Users.apply)
 
   implicit val actionPerformedJsonFormat: RootJsonFormat[ActionPerformed] = jsonFormat1(ActionPerformed.apply)
+  implicit val actionCountetPerformedJsonFormat:RootJsonFormat[CounterPerformed] = jsonFormat1(CounterPerformed.apply)
 }
 //#json-formats

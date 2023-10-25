@@ -35,7 +35,7 @@ class UserRoutes(userRegistry: ActorRef[UserRegistry.Command])(implicit val syst
   def deleteUser(name: String): Future[ActionPerformed] = {
     userRegistry.ask(DeleteUser(name, _))
   }
-  def getCounter(): Future[Users] =
+  def getCounter(): Future[CounterPerformed] =
     userRegistry.ask(GetCounter)
 
   //#all-routes
@@ -53,7 +53,9 @@ class UserRoutes(userRegistry: ActorRef[UserRegistry.Command])(implicit val syst
             post {
               entity(as[User]) { user =>
                 onSuccess(createUser(user)) { performed =>
-                  complete((StatusCodes.Created, performed.asJson.noSpaces))
+
+
+                  complete((StatusCodes.Created, performed))
                 }
               }
             })

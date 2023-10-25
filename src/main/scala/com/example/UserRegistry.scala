@@ -5,6 +5,8 @@ import akka.actor.typed.ActorRef
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import scala.collection.immutable
+import io.circe.generic.auto.exportEncoder
+import io.circe.syntax._
 
 //#user-case-classes
 final case class User(name: String, age: Int, countryOfResidence: String)
@@ -18,11 +20,12 @@ object UserRegistry {
   final case class CreateUser(user: User, replyTo: ActorRef[ActionPerformed]) extends Command
   final case class GetUser(name: String, replyTo: ActorRef[GetUserResponse]) extends Command
   final case class DeleteUser(name: String, replyTo: ActorRef[ActionPerformed]) extends Command
-  final case class GetCounter(replyTo:  ActorRef[Users]) extends Command
+  final case class GetCounter(replyTo:  ActorRef[CounterPerformed]) extends Command
 
 
   final case class GetUserResponse(maybeUser: Option[User])
   final case class ActionPerformed(description: String)
+  final case class CounterPerformed(count: Int)
 
   def apply(): Behavior[Command] = registry(Set.empty)
 
@@ -32,7 +35,8 @@ object UserRegistry {
         replyTo ! Users(users.toSeq)
         Behaviors.same
       case CreateUser(user, replyTo) =>
-        replyTo ! ActionPerformed(s"User ${user.name} created.")
+        val result = s"User ${user.name} created."
+        replyTo ! ActionPerformed(result.asJson.noSpaces)
         registry(users + user)
       case GetUser(name, replyTo) =>
         replyTo ! GetUserResponse(users.find(_.name == name))
@@ -41,7 +45,7 @@ object UserRegistry {
         replyTo ! ActionPerformed(s"User $name deleted.")
         registry(users.filterNot(_.name == name))
       case GetCounter(replyTo) =>
-          replyTo ! Users(users.toSeq)
+          replyTo ! CounterPerformed(users.toSeq.size)
           Behaviors.same
 
     }
